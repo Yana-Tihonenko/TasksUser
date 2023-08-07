@@ -1,0 +1,26 @@
+###
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "email": "example@Gmail.com",
+  "password": "123456"
+}
+
+###
+POST http://localhost:8080/users/1/tasks
+Content-Type: application/json
+
+{
+  "description": "description",
+  "title": "title",
+  "startDate": "2023-08-07",
+  "finishDate": "2023-09-10"
+}
+
+###
+GET http://localhost:8080/users
+
+###
+GET http://localhost:8080/users/1/tasks
+
