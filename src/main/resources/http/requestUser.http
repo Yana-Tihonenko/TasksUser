@@ -14,8 +14,8 @@ Content-Type: application/json
 {
   "description": "description",
   "title": "title",
-  "startDate": "2023-08-07",
-  "finishDate": "2023-09-10"
+  "startDate": "2023-08-11",
+  "finishDate": "2023-08-11"
 }
 
 ###

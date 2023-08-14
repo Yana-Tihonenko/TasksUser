@@ -19,13 +19,23 @@ public class TasksDto {
   @Schema(description = "List of tasks")
   private List<TaskDto> tasks;
   @Schema(description = "Tasks count")
-  private Integer count;
+  private Long count;
+  @Schema(description = "Total count page", example = "3")
+  private Integer pagesCount;
 
-  public static TasksDto convertTasksLisToDto(List<Task> taskList) {
+  public static TasksDto convertToTasksDto(List<Task> taskList) {
     return TasksDto.builder()
         .tasks(taskList.stream().map(TaskDto::convertToTaskDto).collect(Collectors.toList()))
-        .count(taskList.size())
         .build();
 
   }
+
+  public static List<TaskDto> convertToListTaskDto(List<Task> taskList) {
+    return taskList.stream()
+        .map(TaskDto::convertToTaskDto)
+        .collect(Collectors.toList());
+
+
+  }
+
 }

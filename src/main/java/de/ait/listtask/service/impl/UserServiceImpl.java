@@ -6,26 +6,35 @@ import de.ait.listtask.dto.task.TasksDto;
 import de.ait.listtask.dto.user.NewUserDto;
 import de.ait.listtask.dto.user.UserDto;
 import de.ait.listtask.dto.user.UsersDto;
-import de.ait.listtask.exception.NotFoundUserException;
+import de.ait.listtask.exception.RestException;
 import de.ait.listtask.model.Task;
 import de.ait.listtask.model.User;
 import de.ait.listtask.repository.TaskRepository;
 import de.ait.listtask.repository.UserRepository;
 import de.ait.listtask.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import static de.ait.listtask.dto.task.TaskDto.convertToTaskDto;
-import static de.ait.listtask.dto.task.TasksDto.convertTasksLisToDto;
+import static de.ait.listtask.dto.task.TasksDto.convertToTasksDto;
 import static de.ait.listtask.dto.user.UsersDto.convertToUsersListDto;
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
   private final UserRepository userRepository;
   private final TaskRepository taskRepository;
+
+  @Autowired
+  MessageSource messageSource;
+
 
   @Override
   public UserDto addUser(NewUserDto newUser) {
@@ -45,10 +54,17 @@ public class UserServiceImpl implements UserService {
     Task task = Task.builder()
         .description(newTaskForUser.getDescription())
         .title(newTaskForUser.getTitle())
-        .startDate(LocalDate.parse(newTaskForUser.getStartDate()))
-        .finishDate(LocalDate.parse(newTaskForUser.getFinishDate()))
         .executor(user)
         .build();
+    try {
+      task.setStartDate(LocalDate.parse(newTaskForUser.getStartDate()));
+      task.setFinishDate(LocalDate.parse(newTaskForUser.getFinishDate()));
+
+    } catch (DateTimeParseException ex) {
+      throw new RestException("101", null, BAD_REQUEST, messageSource);
+    }
+
+
     taskRepository.save(task);
 
 
@@ -63,12 +79,14 @@ public class UserServiceImpl implements UserService {
   @Override
   public TasksDto getAllTaskUser(Long userId) {
     User user = getUserOrElseThrow(userId);
-    return convertTasksLisToDto(user.getTasks());
+    return convertToTasksDto(user.getTasks());
 
   }
 
   private User getUserOrElseThrow(Long userId) {
     return userRepository.findById(userId).orElseThrow(
-        () -> new NotFoundUserException(userId));
+        () -> new RestException("100",
+            userId.toString(),
+            NOT_FOUND, messageSource));
   }
 }

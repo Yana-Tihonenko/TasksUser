@@ -28,6 +28,10 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 @RequestMapping("/users")
 public interface ApiUser {
   @Operation(summary = "Add new user", description = "Api for add new user")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "New user is added", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))
+      })})
   @PostMapping()
   ResponseEntity<UserDto> addUser(@RequestBody NewUserDto newUser);
 
@@ -48,10 +52,12 @@ public interface ApiUser {
                                          @PathVariable("user-id") Long userId,
                                          @Parameter(required = true, description = "Parameter new task")
                                          @RequestBody @Valid NewTaskDto newTaskForUser);
-
-
-  @GetMapping()
   @Operation(summary = "Get all user")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Get all user", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = UsersDto.class))
+      })})
+  @GetMapping()
   ResponseEntity<UsersDto> getAllUsers();
 
   @Operation(summary = "Get user tasks")
