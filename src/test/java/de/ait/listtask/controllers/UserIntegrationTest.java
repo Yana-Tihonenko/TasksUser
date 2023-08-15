@@ -22,8 +22,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.LocalDate;
 import java.util.List;
 
-import static de.ait.listtask.controllers.Utils.CreateDataForTest.*;
-import static de.ait.listtask.controllers.Utils.JsonUtils.getJsonNode;
+import static de.ait.listtask.Utils.CreateDataForTest.*;
+import static de.ait.listtask.Utils.JsonUtils.getJsonNode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;

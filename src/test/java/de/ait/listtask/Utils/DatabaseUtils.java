@@ -1,4 +1,4 @@
-package de.ait.listtask.controllers.Utils;
+package de.ait.listtask.Utils;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

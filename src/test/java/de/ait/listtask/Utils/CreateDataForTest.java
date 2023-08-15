@@ -1,4 +1,4 @@
-package de.ait.listtask.controllers.Utils;
+package de.ait.listtask.Utils;
 
 import de.ait.listtask.dto.task.TaskDto;
 import de.ait.listtask.dto.user.UserDto;

@@ -3,13 +3,12 @@ package de.ait.listtask.exception;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 
 import java.util.Locale;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
 

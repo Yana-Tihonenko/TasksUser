@@ -1,4 +1,4 @@
-package de.ait.listtask.controllers.Utils;
+package de.ait.listtask.Utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
