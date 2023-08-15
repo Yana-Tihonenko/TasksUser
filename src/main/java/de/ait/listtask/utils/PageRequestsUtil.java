@@ -21,7 +21,7 @@ public class PageRequestsUtil {
   MessageSource messageSource;
 
   public PageRequest getPageRequest(Integer pageNumber, String orderByField, Boolean desc, List<String> sortFields) {
-    if (orderByField == null && !orderByField.equals("")) {
+    if (orderByField != null && !orderByField.equals("")) {
       checkField(sortFields, orderByField);
       Sort.Direction direction = Sort.Direction.ASC;
       if (desc != null && desc) {

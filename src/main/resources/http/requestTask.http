@@ -1,12 +1,12 @@
 ###
-GET localhost:8080/api/tasks?page=1&orderBy=description&desc=true&filterBy=startDate&filterValue=2023-09-09
+GET localhost:8080/api/tasks?page=0&orderBy=title&desc=true&filterBy=startDate&filterValue=2023-09-09
 
 ###
-GET localhost:8080/api/tasks?page=1&filterBy=finishDate&filterValue=2023-09-12
+GET localhost:8080/api/tasks?page=0&filterBy=finishDate&filterValue=2023-09-12
 
 
 ###
-GET localhost:8080/api/tasks?page=1&orderBy=description&desc=true
+GET localhost:8080/api/tasks?page=0&orderBy=description&desc=true
 
 
 ###

@@ -3,7 +3,6 @@ package de.ait.listtask.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.ait.listtask.controllers.Utils.DatabaseUtils;
 import de.ait.listtask.dto.task.NewTaskDto;
 import de.ait.listtask.dto.task.TaskDto;
 import de.ait.listtask.dto.user.NewUserDto;
@@ -23,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.LocalDate;
 import java.util.List;
 
+import static de.ait.listtask.controllers.Utils.CreateDataForTest.*;
 import static de.ait.listtask.controllers.Utils.JsonUtils.getJsonNode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -79,7 +79,7 @@ public class UserIntegrationTest {
     void add_new_task_positive() throws Exception {
       String dateStart = LocalDate.now().plusDays(2).toString();
       String dateFinish = LocalDate.now().plusWeeks(1).toString();
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -106,7 +106,7 @@ public class UserIntegrationTest {
     void addTask_not_exit_user() throws Exception {
       String dateStart = LocalDate.now().plusDays(2).toString();
       String dateFinish = LocalDate.now().plusWeeks(1).toString();
-      String notExitUserId = getNotExitUserId();
+      String notExitUserId = getNotExitUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -130,7 +130,7 @@ public class UserIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void addTask_with_invalid_format_startDate() throws Exception {
       String dateFinish = LocalDate.now().plusMonths(2).toString();
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -154,7 +154,7 @@ public class UserIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void addTask_with_invalid_format_finishDate() throws Exception {
       String dateStart = LocalDate.now().plusMonths(2).toString();
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -178,7 +178,7 @@ public class UserIntegrationTest {
     void addTask_with_startDate_lessThan_dataNow() throws Exception {
       String dateStart = LocalDate.now().minusDays(2).toString();
       String dateFinish = LocalDate.now().plusMonths(1).toString();
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -197,7 +197,7 @@ public class UserIntegrationTest {
 
     }
 
-    //TODO подумать как обработать и проверить массив ошибок
+    //TODO подумать
 //    @Test
 //    void addTask_with_finishDate_lessThan_dataNow() throws Exception {
 //      String body = objectMapper.writeValueAsString(NewTaskDto.builder()
@@ -223,7 +223,7 @@ public class UserIntegrationTest {
 
       String dateStart = LocalDate.now().plusDays(2).toString();
       String dateFinish = LocalDate.now().plusDays(1).toString();
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
       String body = objectMapper.writeValueAsString(NewTaskDto.builder()
           .description("description")
           .title("title")
@@ -254,7 +254,7 @@ public class UserIntegrationTest {
 
       JsonNode jsonNode = getJsonNode(resultRequest);
       JsonNode usersNode = jsonNode.get("users");
-      List<UserDto> expectedUsers = createExpectedUsersDto("SELECT * FROM ACCOUNT");
+      List<UserDto> expectedUsers = createExpectedUsersDto(jdbcTemplate, "SELECT * FROM ACCOUNT");
       for (int i = 0; i < usersNode.size(); i++) {
         JsonNode userNode = usersNode.get(i);
         UserDto expectedUser = expectedUsers.get(i);
@@ -278,7 +278,7 @@ public class UserIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void get_all_tasks_by_users_positiv() throws Exception {
 
-      String randomUserIdForTest = getRandomUserId();
+      String randomUserIdForTest = getRandomUserId(jdbcTemplate);
 
       MvcResult resultRequest = mockMvc.perform(get("/users/{user_id}/tasks", randomUserIdForTest)
               .param("user_id", randomUserIdForTest))
@@ -289,7 +289,7 @@ public class UserIntegrationTest {
       JsonNode jsonNode = getJsonNode(resultRequest);
       JsonNode tasksNode = jsonNode.get("tasks");
       String sql = "SELECT * FROM TASK WHERE USER_ID=" + randomUserIdForTest;
-      List<TaskDto> expectedTasksByUser = createExpectedTaskByUser(sql);
+      List<TaskDto> expectedTasksByUser = createExpectedTask(jdbcTemplate, sql);
       for (int i = 0; i < tasksNode.size(); i++) {
         JsonNode taskNode = tasksNode.get(i);
         TaskDto expectedTaskByUser = expectedTasksByUser.get(i);
@@ -310,53 +310,14 @@ public class UserIntegrationTest {
     @Sql(scripts = "/sql/tasks.sql")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void get_all_tasks_by_not_exit_users() throws Exception {
-      String notExitUserId = getNotExitUserId();
-       mockMvc.perform(get("/users/{user_id}/tasks", notExitUserId)
-          .param("user_id", notExitUserId))
-           .andExpect(status().isNotFound())
-           .andExpect(jsonPath("$.errorCode", is("100")))
-           .andExpect(jsonPath("$.message", is("Not found user")))
-           .andExpect(jsonPath("$.rejectedValue", is(notExitUserId)));
+      String notExitUserId = getNotExitUserId(jdbcTemplate);
+      mockMvc.perform(get("/users/{user_id}/tasks", notExitUserId)
+              .param("user_id", notExitUserId))
+          .andExpect(status().isNotFound())
+          .andExpect(jsonPath("$.errorCode", is("100")))
+          .andExpect(jsonPath("$.message", is("Not found user")))
+          .andExpect(jsonPath("$.rejectedValue", is(notExitUserId)));
     }
-  }
-
-  public List<UserDto> createExpectedUsersDto(String sql) {
-    return new DatabaseUtils(jdbcTemplate)
-        .executeQueryAndConvertToList(sql, (resultSet, rowNum) -> UserDto.builder()
-            .id(resultSet.getLong("id"))
-            .email(resultSet.getString("email"))
-            .role(User.Role.valueOf(resultSet.getString("role")))
-            .state(User.State.valueOf(resultSet.getString("state")))
-            .build());
-  }
-
-  public List<TaskDto> createExpectedTaskByUser(String sql) {
-    return new DatabaseUtils(jdbcTemplate)
-        .executeQueryAndConvertToList(sql, (resultSet, rowNum) -> TaskDto.builder()
-            .id(resultSet.getLong("id"))
-            .description(resultSet.getString("description"))
-            .title(resultSet.getString("title"))
-            .startDate(resultSet.getString("start_date"))
-            .finishDate(resultSet.getString("finish_date"))
-            .userId(resultSet.getString("user_id"))
-            .build());
-  }
-
-  public String getRandomUserId() {
-    return jdbcTemplate.queryForObject(
-        "SELECT ID FROM ACCOUNT ORDER BY RANDOM() LIMIT 1",
-        (resultSet, rowNum) -> resultSet.getString("ID")
-    );
-  }
-
-  public String getNotExitUserId() {
-    return jdbcTemplate.queryForObject(
-        "SELECT max(ID) AS max_id FROM ACCOUNT",
-        (resultSet, rowNum) -> {
-          int maxIdUser = resultSet.getInt("max_id");
-          return String.valueOf(maxIdUser + 1);
-        });
-
   }
 }
 
