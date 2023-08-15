@@ -7,8 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 
 import java.util.Locale;
-
-
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 
